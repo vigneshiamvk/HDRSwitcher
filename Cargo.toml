@@ -1,0 +1,25 @@
+[package]
+name = "hdr-game-switcher"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = "0.33"
+tray-icon = { version = "0.24", default-features = false }
+rfd = "0.15"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+wmi = "0.18"
+winreg = "0.55"
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_Devices_Display",
+    "Win32_System_Com",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Threading",
+    "Win32_System_Registry",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+] }

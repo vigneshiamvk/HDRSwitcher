@@ -1,0 +1,42 @@
+name: Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build release executable
+        run: cargo build --release
+
+      - name: Package executable
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path target/release/hdr-game-switcher.exe `
+            -DestinationPath hdr-game-switcher-windows-x64.zip
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" `
+            hdr-game-switcher-windows-x64.zip `
+            --title "HDR Game Switcher $env:GITHUB_REF_NAME" `
+            --generate-notes
