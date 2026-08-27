@@ -4,6 +4,8 @@ HDR Game Switcher is a small Windows-only utility that automatically enables HDR
 
 It uses Windows process-start/process-stop events rather than periodically polling the process list.
 
+> **Important:** Console Mode control currently works only with the **Alienware AW2725D**. It is not supported on other monitors or displays. On other hardware, the application may still toggle Windows HDR, but Console Mode will not work.
+
 ## Download and first launch
 
 If you only want to use the application, you do not need Rust or GitHub installed:
