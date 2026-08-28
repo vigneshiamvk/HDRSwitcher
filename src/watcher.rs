@@ -151,6 +151,7 @@ fn spawn(shared: Arc<Mutex<State>>, ctx: eframe::egui::Context) {
     thread::spawn(move || event_start(for_start, ctx));
     thread::spawn(move || event_stop(shared));
 }
+
 fn event_start(shared: Arc<Mutex<State>>, ctx: eframe::egui::Context) {
     let Ok(wmi) = WMIConnection::new() else {
         return;
@@ -158,11 +159,21 @@ fn event_start(shared: Arc<Mutex<State>>, ctx: eframe::egui::Context) {
     let Ok(events) = wmi.notification::<Start>() else {
         return;
     };
-    for event in events.flatten() {
+
+    for result in events {
+        let event = match result {
+            Ok(event) => event,
+            Err(_) => {
+                thread::sleep(Duration::from_secs(1));
+                continue;
+            }
+        };
+
         let games = {
             let s = shared.lock().unwrap();
             configured(&s)
         };
+
         if relevant(&event.name, &games) {
             if let Some(path) = process_path(event.pid) {
                 if games.iter().any(|x| same_path(x, &path)) {
@@ -173,6 +184,7 @@ fn event_start(shared: Arc<Mutex<State>>, ctx: eframe::egui::Context) {
         }
     }
 }
+
 fn event_stop(shared: Arc<Mutex<State>>) {
     let Ok(wmi) = WMIConnection::new() else {
         return;
@@ -180,11 +192,21 @@ fn event_stop(shared: Arc<Mutex<State>>) {
     let Ok(events) = wmi.notification::<Stop>() else {
         return;
     };
-    for event in events.flatten() {
+
+    for result in events {
+        let event = match result {
+            Ok(event) => event,
+            Err(_) => {
+                thread::sleep(Duration::from_secs(1));
+                continue;
+            }
+        };
+
         let transition = {
             let mut s = shared.lock().unwrap();
             s.active.remove(&event.pid).is_some() && s.active.is_empty()
         };
+
         if transition {
             change_mode(&shared, false);
         }
